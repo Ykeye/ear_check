@@ -1,0 +1,51 @@
+function showResults() {
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.remove("hidden");
+
+  let list = document.getElementById("resultsList");
+  list.innerHTML = "";
+
+  let score = 0;
+
+  rounds.forEach((r, i) => {
+    if (r.correctFlag) score++;
+
+    let diffHz = Math.abs(r.f1 - r.f2).toFixed(2);
+
+    let card = document.createElement("div");
+
+    card.style.margin = "12px auto";
+    card.style.padding = "14px";
+    card.style.maxWidth = "420px";
+    card.style.borderRadius = "12px";
+    card.style.background = r.correctFlag ? "#12351f" : "#3a1a1a";
+    card.style.border = r.correctFlag ? "1px solid #2ecc71" : "1px solid #e74c3c";
+    card.style.textAlign = "left";
+
+    card.innerHTML = `
+      <div style="font-size:18px; font-weight:bold; margin-bottom:8px;">
+        Round ${i + 1}
+      </div>
+
+      <div style="margin-bottom:6px;">
+        <b>Correct:</b> ${r.correct.toUpperCase()}
+      </div>
+
+      <div style="margin-bottom:6px;">
+        <b>Your answer:</b> ${r.user ? r.user.toUpperCase() : "—"}
+      </div>
+
+      <div style="font-size:20px; font-weight:bold; margin:10px 0;">
+        ${r.correctFlag ? "✅ Correct" : "❌ Wrong"}
+      </div>
+
+      <div style="font-size:12px; opacity:0.75;">
+        ${r.cents} cents | A: ${r.f1.toFixed(2)} Hz | B: ${r.f2.toFixed(2)} Hz | Δ ${diffHz} Hz
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+
+  document.getElementById("score").innerText = `Score: ${score} / 5`;
+}
