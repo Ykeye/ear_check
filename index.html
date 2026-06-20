@@ -37,11 +37,15 @@
     display: flex;
     border-bottom: 1px solid var(--border);
     background: var(--surface);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .tab-btn {
-    flex: 1;
-    padding: 14px;
-    font-size: 15px;
+    flex: 1 0 auto;
+    min-width: 140px;
+    padding: 14px 10px;
+    font-size: 14px;
+    white-space: nowrap;
     background: none;
     border: none;
     color: var(--text2);
@@ -87,6 +91,21 @@
   }
   .seg-btn:hover { color: var(--text); }
   .seg-btn.active { background: var(--surface); color: var(--text); }
+
+  /* ── Checkbox grid (interval picker) ── */
+  .checkbox-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  }
+  .chk-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; color: var(--text2);
+    transition: border-color .15s, color .15s;
+    user-select: none;
+  }
+  .chk-pill input { accent-color: var(--accent); cursor: pointer; }
+  .chk-pill.checked { color: var(--text); border-color: var(--border2); }
 
   /* ── Buttons ── */
   .btn {
@@ -205,13 +224,109 @@
   .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
   .section-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+
+  /* ── Home screen ── */
+  #home-screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  #home-screen.hidden { display: none; }
+
+  .home-title {
+    font-size: 28px; font-weight: 700; color: var(--text);
+    margin-bottom: 6px; text-align: center;
+  }
+  .home-sub {
+    font-size: 14px; color: var(--text2); text-align: center;
+    margin-bottom: 40px; line-height: 1.6;
+  }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%; max-width: 480px;
+  }
+
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 18px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .mode-card:hover {
+    border-color: var(--border2);
+    background: var(--surface2);
+  }
+  .mode-card:active { transform: scale(0.97); }
+
+  .mode-icon { font-size: 36px; line-height: 1; }
+  .mode-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .mode-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* ── App shell (hidden until mode chosen) ── */
+  #app-shell { display: none; }
+  #app-shell.visible { display: block; }
+
+  /* ── Tab nav home button ── */
+  .tab-nav-home {
+    padding: 14px 16px;
+    font-size: 18px; line-height: 1;
+    background: none; border: none;
+    color: var(--text2); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s;
+    flex-shrink: 0;
+  }
+  .tab-nav-home:hover { color: var(--text); }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════ HOME SCREEN ═══════════════════════════ -->
+<div id="home-screen">
+  <p class="home-title">🎶 Ear Training Suite</p>
+  <p class="home-sub">Choose a mode to start training</p>
+
+  <div class="mode-grid">
+    <div class="mode-card" onclick="goToTab('ear')">
+      <div class="mode-icon">🎵</div>
+      <div class="mode-name">Ear Training</div>
+      <div class="mode-desc">Adaptive staircase — find your cents discrimination threshold</div>
+    </div>
+    <div class="mode-card" onclick="goToTab('sing')">
+      <div class="mode-icon">🎤</div>
+      <div class="mode-name">Pitch Matching</div>
+      <div class="mode-desc">Hear a note, sing it back within the time window</div>
+    </div>
+    <div class="mode-card" onclick="goToTab('interval')">
+      <div class="mode-icon">🎼</div>
+      <div class="mode-name">Interval Singing</div>
+      <div class="mode-desc">Hear a harmonic interval, sing both notes back</div>
+    </div>
+    <div class="mode-card" onclick="goToTab('chord')">
+      <div class="mode-icon">🎹</div>
+      <div class="mode-name">Chord Singing</div>
+      <div class="mode-desc">Hear a chord, sing the requested degree (I, III or V)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ APP SHELL ═══════════════════════════ -->
+<div id="app-shell">
+
 <div class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('ear')">🎵 Ear Training</button>
-  <button class="tab-btn" onclick="switchTab('sing')">🎤 Pitch Matching</button>
+  <button class="tab-nav-home" onclick="goHome()" title="Home">⌂</button>
+  <button class="tab-btn" data-tab="ear" onclick="switchTab('ear')">🎵 Ear Training</button>
+  <button class="tab-btn" data-tab="sing" onclick="switchTab('sing')">🎤 Pitch Matching</button>
+  <button class="tab-btn" data-tab="interval" onclick="switchTab('interval')">🎼 Interval Singing</button>
+  <button class="tab-btn" data-tab="chord" onclick="switchTab('chord')">🎹 Chord Singing</button>
 </div>
 
 <!-- ═══════════════════════════ EAR TRAINING TAB ═══════════════════════════ -->
@@ -422,11 +537,248 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════ INTERVAL SINGING TAB ═══════════════════════════ -->
+<div class="tab-panel" id="tab-interval">
+
+  <!-- Config / start screen -->
+  <div class="screen active" id="iv-start">
+    <h1>Interval singing</h1>
+    <p class="subtitle">Two notes play together as a harmonic interval. Sing both back, one after another, in either order — the interval name is revealed after your attempt.</p>
+
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Rounds</span><span class="cfg-val" id="iv-numRoundsVal">10</span></div>
+      <input type="range" min="3" max="30" value="10" step="1" id="iv-numRounds">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Time to sing both notes</span><span class="cfg-val" id="iv-roundTimeVal">6.0s</span></div>
+      <input type="range" min="3" max="15" value="6" step="0.5" id="iv-roundTime">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Note length (playback)</span><span class="cfg-val" id="iv-noteLenVal">1.0s</span></div>
+      <input type="range" min="0.4" max="3.0" value="1.0" step="0.1" id="iv-noteLen">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Volume</span><span class="cfg-val" id="iv-volVal">70%</span></div>
+      <input type="range" min="5" max="100" value="70" step="5" id="iv-vol">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Tolerance</span><span class="cfg-val" id="iv-tolVal">25¢</span></div>
+      <input type="range" min="5" max="50" value="25" step="5" id="iv-tol">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Tone</span></div>
+      <div class="seg-control" id="iv-timbreSeg">
+        <button class="seg-btn" data-val="sine" onclick="ivSetTimbre('sine')">Sine</button>
+        <button class="seg-btn active" data-val="piano" onclick="ivSetTimbre('piano')">Piano</button>
+        <button class="seg-btn" data-val="guitar" onclick="ivSetTimbre('guitar')">Guitar</button>
+      </div>
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Interval range</span></div>
+      <div class="checkbox-grid" id="iv-intervalPicker"></div>
+    </div>
+
+    <div style="margin-top:22px;">
+      <button class="btn btn-primary" onclick="ivStart()">Start session</button>
+    </div>
+  </div>
+
+  <!-- Round screen -->
+  <div class="screen" id="iv-round">
+    <div class="round-meta">
+      <span class="round-num" id="iv-roundNum">Round 1 / 10</span>
+      <span class="cents-pill" id="iv-timerPill">6.0s</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="iv-progress" style="width:0%"></div>
+    </div>
+
+    <div class="note-display" id="iv-noteDisplay">?  +  ?</div>
+    <div class="note-hz" id="iv-noteHz">Sing both notes of the interval</div>
+
+    <div id="iv-statusLabel" class="pitch-label" style="font-size:14px; margin-bottom:18px;">Press play, then sing both notes</div>
+
+    <div class="sing-controls">
+      <button class="btn" id="iv-playBtn" onclick="ivPlayTarget()">▶ Play interval</button>
+      <button class="btn" id="iv-micBtn" onclick="ivToggleMic()">🎤 Start mic</button>
+      <button class="btn btn-primary" id="iv-beginBtn" onclick="ivBeginRound()" disabled>Begin round</button>
+    </div>
+
+    <div class="chart-wrap" id="iv-roundChartWrap" style="display:none;">
+      <canvas id="iv-roundChart" role="img" aria-label="Pitch trace for this round">Pitch trace</canvas>
+    </div>
+
+    <div id="iv-roundResultBox" style="display:none;">
+      <div class="feedback" id="iv-roundFeedback" style="display:block;"></div>
+      <button class="btn btn-primary" onclick="ivNextRound()" id="iv-nextBtn" style="width:100%;">Next round →</button>
+    </div>
+  </div>
+
+  <!-- Results screen -->
+  <div class="screen" id="iv-result">
+    <h1 style="margin-bottom:4px;">Session complete</h1>
+    <p class="subtitle" id="iv-resultSub"></p>
+    <p class="result-note" id="iv-resultNote"></p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Both notes hit</div>
+        <div class="stat-val" id="iv-resHitRate">—</div>
+        <div class="stat-unit">%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Note hit rate</div>
+        <div class="stat-val" id="iv-resNoteRate">—</div>
+        <div class="stat-unit">%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg final dev.</div>
+        <div class="stat-val" id="iv-resAvgDev">—</div>
+        <div class="stat-unit">cents</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:8px;">Per-round breakdown</div>
+    <div class="history-list" id="iv-resultRounds"></div>
+
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="ivRestart()">Train again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CHORD SINGING TAB ═══════════════════════════ -->
+<div class="tab-panel" id="tab-chord">
+
+  <!-- Config / start screen -->
+  <div class="screen active" id="ch-start">
+    <h1>Chord singing</h1>
+    <p class="subtitle">A major or minor triad plays. Sing back the root (I), third (III), or fifth (V) — you're told which degree to sing before you start, and the full chord is revealed after your attempt.</p>
+
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Rounds</span><span class="cfg-val" id="ch-numRoundsVal">10</span></div>
+      <input type="range" min="3" max="30" value="10" step="1" id="ch-numRounds">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Time to sing the note</span><span class="cfg-val" id="ch-roundTimeVal">3.0s</span></div>
+      <input type="range" min="1" max="8" value="3" step="0.5" id="ch-roundTime">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Chord length (playback)</span><span class="cfg-val" id="ch-noteLenVal">1.5s</span></div>
+      <input type="range" min="0.5" max="4.0" value="1.5" step="0.1" id="ch-noteLen">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Volume</span><span class="cfg-val" id="ch-volVal">70%</span></div>
+      <input type="range" min="5" max="100" value="70" step="5" id="ch-vol">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Tolerance</span><span class="cfg-val" id="ch-tolVal">25¢</span></div>
+      <input type="range" min="5" max="50" value="25" step="5" id="ch-tol">
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Tone</span></div>
+      <div class="seg-control" id="ch-timbreSeg">
+        <button class="seg-btn" data-val="sine" onclick="chSetTimbre('sine')">Sine</button>
+        <button class="seg-btn active" data-val="piano" onclick="chSetTimbre('piano')">Piano</button>
+        <button class="seg-btn" data-val="guitar" onclick="chSetTimbre('guitar')">Guitar</button>
+      </div>
+    </div>
+    <div class="cfg">
+      <div class="cfg-head"><span class="cfg-label">Chord qualities</span></div>
+      <div class="seg-control" id="ch-qualitySeg">
+        <button class="seg-btn active" data-val="both" onclick="chSetQuality('both')">Major + Minor</button>
+        <button class="seg-btn" data-val="major" onclick="chSetQuality('major')">Major only</button>
+        <button class="seg-btn" data-val="minor" onclick="chSetQuality('minor')">Minor only</button>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;">
+      <button class="btn btn-primary" onclick="chStart()">Start session</button>
+    </div>
+  </div>
+
+  <!-- Round screen -->
+  <div class="screen" id="ch-round">
+    <div class="round-meta">
+      <span class="round-num" id="ch-roundNum">Round 1 / 10</span>
+      <span class="cents-pill" id="ch-timerPill">3.0s</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="ch-progress" style="width:0%"></div>
+    </div>
+
+    <div class="note-display" id="ch-degreeDisplay">Sing the I</div>
+    <div class="note-hz" id="ch-noteHz">Chord hidden until after your attempt</div>
+
+    <div id="ch-statusLabel" class="pitch-label" style="font-size:14px; margin-bottom:18px;">Press play, then sing the requested note</div>
+
+    <div class="sing-controls">
+      <button class="btn" id="ch-playBtn" onclick="chPlayTarget()">▶ Play chord</button>
+      <button class="btn" id="ch-micBtn" onclick="chToggleMic()">🎤 Start mic</button>
+      <button class="btn btn-primary" id="ch-beginBtn" onclick="chBeginRound()" disabled>Begin round</button>
+    </div>
+
+    <div class="chart-wrap" id="ch-roundChartWrap" style="display:none;">
+      <canvas id="ch-roundChart" role="img" aria-label="Pitch trace for this round">Pitch trace</canvas>
+    </div>
+
+    <div id="ch-roundResultBox" style="display:none;">
+      <div class="feedback" id="ch-roundFeedback" style="display:block;"></div>
+      <button class="btn btn-primary" onclick="chNextRound()" id="ch-nextBtn" style="width:100%;">Next round →</button>
+    </div>
+  </div>
+
+  <!-- Results screen -->
+  <div class="screen" id="ch-result">
+    <h1 style="margin-bottom:4px;">Session complete</h1>
+    <p class="subtitle" id="ch-resultSub"></p>
+    <p class="result-note" id="ch-resultNote"></p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Hit rate</div>
+        <div class="stat-val" id="ch-resHitRate">—</div>
+        <div class="stat-unit">%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg time to hit</div>
+        <div class="stat-val" id="ch-resAvgTime">—</div>
+        <div class="stat-unit">seconds</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg final dev.</div>
+        <div class="stat-val" id="ch-resAvgDev">—</div>
+        <div class="stat-unit">cents</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:8px;">Per-round breakdown</div>
+    <div class="history-list" id="ch-resultRounds"></div>
+
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="chRestart()">Train again</button>
+    </div>
+  </div>
+</div>
+
+</div> <!-- /app-shell -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ─── Tab switching ───────────────────────────────────────────────────────────
+// ─── Home / tab navigation ───────────────────────────────────────────────────
+function goHome() {
+  document.getElementById('home-screen').classList.remove('hidden');
+  document.getElementById('app-shell').classList.remove('visible');
+}
+
+function goToTab(id) {
+  document.getElementById('home-screen').classList.add('hidden');
+  document.getElementById('app-shell').classList.add('visible');
+  switchTab(id);
+}
+
 function switchTab(id) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['ear','sing'][i] === id));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
 }
@@ -444,95 +796,187 @@ function randBetween(a, b) { return Math.random() * (b - a) + a; }
 function freqToCents(f, ref) { return 1200 * Math.log2(f / ref); }
 
 // ─── Tone synthesis ──────────────────────────────────────────────────────────
-// Pure sine, with a touch of vibrato — best for critical pitch comparison.
+
+// ── Sine (best for fine cents discrimination) ──
 function playToneSine(freq, startTime, dur, volume) {
   const ctx = getAudio();
   const osc  = ctx.createOscillator();
   const gain = ctx.createGain();
   const vib  = ctx.createOscillator();
   const vibG = ctx.createGain();
-
   vib.frequency.value = 5.5;
   vibG.gain.value = freq * 0.003;
   vib.connect(vibG);
   vibG.connect(osc.frequency);
-
   const peak = Math.min(0.95, volume) * 0.35;
   const att  = Math.min(0.15, dur * 0.15);
-  const rel  = Math.min(0.2, dur * 0.2);
-
+  const rel  = Math.min(0.2,  dur * 0.2);
   osc.type = 'sine';
   osc.frequency.value = freq;
   gain.gain.setValueAtTime(0.0001, startTime);
   gain.gain.exponentialRampToValueAtTime(peak, startTime + att);
   gain.gain.setValueAtTime(peak, startTime + dur - rel);
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
-
   osc.connect(gain);
   gain.connect(ctx.destination);
-
   vib.start(startTime); vib.stop(startTime + dur);
   osc.start(startTime); osc.stop(startTime + dur);
 }
 
-// Additive synthesis "instrument" — harmonic stack with a percussive pluck/strike
-// envelope. Used for piano & guitar approximations. Not a sample, but reads as
-// an instrument rather than a lab tone.
-function playToneInstrument(freq, startTime, dur, volume, kind) {
-  const ctx = getAudio();
+// ── Guitar (additive synthesis fallback) ──
+function playToneGuitar(freq, startTime, dur, volume) {
+  const ctx    = getAudio();
   const master = ctx.createGain();
   master.connect(ctx.destination);
-
-  // Harmonic amplitude profiles (relative) — piano: fast-decaying upper partials,
-  // guitar: brighter pluck with stronger odd harmonics.
-  const profiles = {
-    piano:  [1, 0.55, 0.30, 0.18, 0.10, 0.06, 0.04],
-    guitar: [1, 0.35, 0.55, 0.20, 0.30, 0.12, 0.10],
-  };
-  const partials = profiles[kind] || profiles.piano;
-  const peak = Math.min(0.95, volume) * 0.3;
-
-  // Strike/pluck transient: very fast attack, then a held body that decays
-  // faster for higher harmonics (brighter at onset, mellower as it rings).
-  const attack = 0.006;
-  const bodyDur = dur;
-
+  const partials = [1, 0.35, 0.55, 0.20, 0.30, 0.12, 0.10];
+  const peak     = Math.min(0.95, volume) * 0.3;
   partials.forEach((amp, i) => {
-    const n = i + 1;
     const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.value = freq * n;
-
-    // Higher harmonics decay quicker — gives the pluck/strike brightness-fades-fast character.
-    const decayRate = 1 + i * 0.9;
+    osc.frequency.value = freq * (i + 1);
+    const decayRate   = 1 + i * 0.9;
     const partialPeak = peak * amp;
-    const sustainLevel = partialPeak * 0.12;
-
     gain.gain.setValueAtTime(0.0001, startTime);
-    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, partialPeak), startTime + attack);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, partialPeak), startTime + 0.006);
     gain.gain.exponentialRampToValueAtTime(
-      Math.max(0.0001, sustainLevel),
-      startTime + Math.min(bodyDur * 0.6, attack + bodyDur / decayRate)
+      Math.max(0.0001, partialPeak * 0.12),
+      startTime + Math.min(dur * 0.6, 0.006 + dur / decayRate)
     );
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + bodyDur);
-
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
     osc.connect(gain);
     gain.connect(master);
     osc.start(startTime);
-    osc.stop(startTime + bodyDur + 0.05);
+    osc.stop(startTime + dur + 0.05);
   });
 }
 
-// Unified entry point. timbre: 'sine' | 'piano' | 'guitar'
+// ── Salamander Grand Piano sampler ──────────────────────────────────────────
+// Samples from https://tonejs.github.io/audio/salamander/
+// Named: A4.mp3, C4.mp3, Ds4.mp3 (D#), Fs4.mp3 (F#), etc.
+// We load a sparse set of anchors and pitch-shift with playbackRate for nearby notes.
+const PIANO_BASE_URL = 'https://tonejs.github.io/audio/salamander/';
+
+// Anchor samples: MIDI note → filename (exact Tone.js Salamander file set only).
+// Max gap between anchors is 3 semitones → worst pitch-shift ≤ 1.5 semitones, inaudible.
+const PIANO_ANCHORS = {
+  21:'A0', 24:'C1', 27:'Ds1', 30:'Fs1',
+  33:'A1', 36:'C2', 39:'Ds2', 42:'Fs2',
+  45:'A2', 48:'C3', 51:'Ds3', 54:'Fs3',
+  57:'A3', 60:'C4', 63:'Ds4', 66:'Fs4',
+  69:'A4', 72:'C5', 75:'Ds5', 78:'Fs5',
+  81:'A5', 84:'C6', 87:'Ds6', 90:'Fs6',
+  93:'A6', 96:'C7',
+};
+const PIANO_ANCHOR_MIDIS = Object.keys(PIANO_ANCHORS).map(Number).sort((a,b) => a-b);
+
+// AudioBuffer cache: midi → AudioBuffer
+const pianoCache = {};
+// In-flight fetch promises to avoid duplicate requests
+const pianoFetching = {};
+
+function freqToMidiFloat(f) { return 69 + 12 * Math.log2(f / 440); }
+
+function nearestAnchor(midi) {
+  let best = PIANO_ANCHOR_MIDIS[0], bestDist = Infinity;
+  for (const m of PIANO_ANCHOR_MIDIS) {
+    const d = Math.abs(m - midi);
+    if (d < bestDist) { bestDist = d; best = m; }
+  }
+  return best;
+}
+
+function pianoSampleUrl(anchorMidi) {
+  const name = PIANO_ANCHORS[anchorMidi];
+  return PIANO_BASE_URL + name + '.mp3';
+}
+
+async function loadPianoSample(anchorMidi) {
+  if (pianoCache[anchorMidi]) return pianoCache[anchorMidi];
+  if (pianoFetching[anchorMidi]) return pianoFetching[anchorMidi];
+
+  pianoFetching[anchorMidi] = (async () => {
+    const ctx  = getAudio();
+    const url  = pianoSampleUrl(anchorMidi);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Sample fetch failed: ' + url);
+    const arrBuf = await resp.arrayBuffer();
+    const decoded = await ctx.decodeAudioData(arrBuf);
+    pianoCache[anchorMidi] = decoded;
+    return decoded;
+  })();
+
+  return pianoFetching[anchorMidi];
+}
+
+// Pre-warm: silently kick off loading the most-used octave anchors on page load.
+function pianoPrewarm() {
+  // Lightly load the C3–A5 range anchors — the notes we use most often.
+  [48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81].forEach(m => {
+    loadPianoSample(m).catch(() => {});
+  });
+}
+
+// Schedule a piano sample playback at startTime with pitch-shift to match freq.
+// Falls back to sine immediately if the sample isn't cached yet and loading takes too long.
+async function playTonePiano(freq, startTime, dur, volume) {
+  const ctx        = getAudio();
+  const targetMidi = freqToMidiFloat(freq);
+  const anchor     = nearestAnchor(Math.round(targetMidi));
+  const semitones  = targetMidi - anchor;
+  const rate       = Math.pow(2, semitones / 12);
+
+  let buffer;
+  try {
+    // Give the fetch a brief deadline — if we're already past startTime, play immediately.
+    const deadline = Math.max(200, (startTime - ctx.currentTime) * 1000 - 80);
+    buffer = await Promise.race([
+      loadPianoSample(anchor),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), deadline)),
+    ]);
+  } catch (e) {
+    // Sample not ready in time — fall back to sine so there's no silence.
+    playToneSine(freq, startTime, dur, volume);
+    return;
+  }
+
+  const src   = ctx.createBufferSource();
+  const gain  = ctx.createGain();
+  src.buffer  = buffer;
+  src.playbackRate.value = rate;
+
+  // Piano natural envelope: instant attack (it's a hammer strike), then let
+  // the sample ring and fade it out at dur. We don't want an abrupt cut, so
+  // we fade the gain rather than stopping the source hard.
+  const peak = Math.min(0.95, volume) * 0.7;
+  const fadeStart = Math.max(startTime, startTime + dur - 0.25);
+  gain.gain.setValueAtTime(peak, startTime);
+  gain.gain.setValueAtTime(peak, fadeStart);
+  gain.gain.exponentialRampToValueAtTime(0.0001, fadeStart + 0.25);
+
+  src.connect(gain);
+  gain.connect(ctx.destination);
+  src.start(startTime);
+  // Let it play a bit past dur for natural release, then stop.
+  src.stop(Math.max(startTime + dur + 1.5, fadeStart + 0.5));
+}
+
+// ── Unified entry point ──────────────────────────────────────────────────────
+// timbre: 'sine' | 'piano' | 'guitar'
 function playTone(freq, startTime, dur, volume, timbre) {
   timbre = timbre || 'sine';
   if (timbre === 'sine') {
     playToneSine(freq, startTime, dur, volume);
+  } else if (timbre === 'guitar') {
+    playToneGuitar(freq, startTime, dur, volume);
   } else {
-    playToneInstrument(freq, startTime, dur, volume, timbre);
+    // Piano: async but fire-and-forget (falls back internally if slow)
+    playTonePiano(freq, startTime, dur, volume);
   }
 }
+
+// Kick off pre-warming piano samples as soon as the page loads.
+window.addEventListener('load', () => setTimeout(pianoPrewarm, 500));
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  EAR TRAINING
@@ -1176,6 +1620,793 @@ function detectPitch(analyser) {
   }
   return bestT > 0 ? sr / bestT : null;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  INTERVAL SINGING
+// ══════════════════════════════════════════════════════════════════════════════
+const INTERVALS = [
+  { name: 'Minor 2nd',  semitones: 1  },
+  { name: 'Major 2nd',  semitones: 2  },
+  { name: 'Minor 3rd',  semitones: 3  },
+  { name: 'Major 3rd',  semitones: 4  },
+  { name: 'Perfect 4th', semitones: 5  },
+  { name: 'Tritone',    semitones: 6  },
+  { name: 'Perfect 5th', semitones: 7  },
+  { name: 'Minor 6th',  semitones: 8  },
+  { name: 'Major 6th',  semitones: 9  },
+  { name: 'Minor 7th',  semitones: 10 },
+  { name: 'Major 7th',  semitones: 11 },
+  { name: 'Octave',     semitones: 12 },
+];
+
+let ivCfg = { timbre: 'piano', selectedIntervals: INTERVALS.map(i => i.semitones) };
+let ivState = {
+  micStream: null, analyser: null, micActive: false,
+  rafId: null, timerRaf: null,
+  round: 0, rounds: [],
+  rootMidi: null, rootFreq: null, otherMidi: null, otherFreq: null, intervalName: null,
+  roundActive: false, roundStartTime: null, trace: [],
+};
+
+function ivBuildIntervalPicker() {
+  const el = document.getElementById('iv-intervalPicker');
+  el.innerHTML = INTERVALS.map(iv => `
+    <label class="chk-pill checked" data-semi="${iv.semitones}">
+      <input type="checkbox" checked onchange="ivToggleInterval(${iv.semitones}, this.checked)">
+      ${iv.name}
+    </label>
+  `).join('');
+}
+
+function ivToggleInterval(semi, checked) {
+  if (checked) {
+    if (!ivCfg.selectedIntervals.includes(semi)) ivCfg.selectedIntervals.push(semi);
+  } else {
+    ivCfg.selectedIntervals = ivCfg.selectedIntervals.filter(s => s !== semi);
+  }
+  document.querySelector(`#iv-intervalPicker .chk-pill[data-semi="${semi}"]`).classList.toggle('checked', checked);
+}
+
+function ivSetTimbre(val) {
+  ivCfg.timbre = val;
+  document.querySelectorAll('#iv-timbreSeg .seg-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.val === val));
+}
+
+[['iv-numRounds','iv-numRoundsVal', v => v],
+ ['iv-roundTime','iv-roundTimeVal', v => parseFloat(v).toFixed(1)+'s'],
+ ['iv-noteLen',  'iv-noteLenVal',   v => parseFloat(v).toFixed(1)+'s'],
+ ['iv-vol',      'iv-volVal',       v => v+'%'],
+ ['iv-tol',      'iv-tolVal',       v => v+'¢']].forEach(([id,out,fmt]) => {
+  document.getElementById(id).oninput = e =>
+    document.getElementById(out).textContent = fmt(e.target.value);
+});
+
+function ivShow(id) {
+  document.querySelectorAll('#tab-interval .screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function ivRandomRound() {
+  const pool = ivCfg.selectedIntervals.length ? ivCfg.selectedIntervals : INTERVALS.map(i => i.semitones);
+  const semi = pool[Math.floor(Math.random() * pool.length)];
+  const ivDef = INTERVALS.find(i => i.semitones === semi);
+  const rootMidi = 48 + Math.floor(Math.random() * (72 - 48 - semi + 1)); // keep both notes in range
+  const otherMidi = rootMidi + semi;
+  return {
+    rootMidi, otherMidi,
+    rootFreq: 440 * Math.pow(2, (rootMidi - 69) / 12),
+    otherFreq: 440 * Math.pow(2, (otherMidi - 69) / 12),
+    intervalName: ivDef.name,
+  };
+}
+
+function ivStart() {
+  getAudio();
+  ivCfg.numRounds = parseInt(document.getElementById('iv-numRounds').value);
+  ivCfg.roundTime = parseFloat(document.getElementById('iv-roundTime').value);
+  ivCfg.noteLen   = parseFloat(document.getElementById('iv-noteLen').value);
+  ivCfg.vol       = parseFloat(document.getElementById('iv-vol').value) / 100;
+  ivCfg.tol       = parseFloat(document.getElementById('iv-tol').value);
+
+  ivState.round = 0;
+  ivState.rounds = [];
+  for (let i = 0; i < ivCfg.numRounds; i++) ivState.rounds.push(ivRandomRound());
+
+  ivShow('iv-round');
+  ivLoadRound();
+}
+
+function ivLoadRound() {
+  const r = ivState.rounds[ivState.round];
+  ivState.roundActive = false;
+  ivState.trace = [];
+
+  document.getElementById('iv-noteDisplay').textContent = '?  +  ?';
+  document.getElementById('iv-noteHz').textContent      = 'Sing both notes of the interval';
+  document.getElementById('iv-roundNum').textContent     = `Round ${ivState.round + 1} / ${ivCfg.numRounds}`;
+  document.getElementById('iv-timerPill').textContent     = ivCfg.roundTime.toFixed(1) + 's';
+  document.getElementById('iv-progress').style.width      = (ivState.round / ivCfg.numRounds * 100).toFixed(1) + '%';
+  document.getElementById('iv-statusLabel').textContent   = 'Press play, then sing both notes';
+  document.getElementById('iv-beginBtn').disabled          = !ivState.micActive;
+  document.getElementById('iv-roundChartWrap').style.display = 'none';
+  document.getElementById('iv-roundResultBox').style.display = 'none';
+
+  if (ivState.roundChart) { ivState.roundChart.destroy(); ivState.roundChart = null; }
+}
+
+function ivPlayTarget() {
+  getAudio();
+  const r = ivState.rounds[ivState.round];
+  const now = getAudio().currentTime;
+  playTone(r.rootFreq,  now + 0.05, ivCfg.noteLen, ivCfg.vol, ivCfg.timbre);
+  playTone(r.otherFreq, now + 0.05, ivCfg.noteLen, ivCfg.vol, ivCfg.timbre);
+}
+
+async function ivToggleMic() {
+  if (ivState.micActive) ivStopMic();
+  else await ivStartMic();
+}
+
+async function ivStartMic() {
+  try {
+    ivState.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = getAudio();
+    const source = ctx.createMediaStreamSource(ivState.micStream);
+    ivState.analyser = ctx.createAnalyser();
+    ivState.analyser.fftSize = 4096;
+    source.connect(ivState.analyser);
+    ivState.micActive = true;
+    document.getElementById('iv-micBtn').textContent = '🎤 Stop mic';
+    document.getElementById('iv-beginBtn').disabled = false;
+  } catch (e) {
+    alert('Mic access denied or unavailable.');
+  }
+}
+
+function ivStopMic() {
+  if (ivState.micStream) ivState.micStream.getTracks().forEach(t => t.stop());
+  if (ivState.rafId) cancelAnimationFrame(ivState.rafId);
+  ivState.micActive = false;
+  ivState.analyser = null;
+  document.getElementById('iv-micBtn').textContent = '🎤 Start mic';
+  document.getElementById('iv-beginBtn').disabled = true;
+}
+
+function ivBeginRound() {
+  if (!ivState.micActive || ivState.roundActive) return;
+  ivState.roundActive = true;
+  ivState.trace = [];
+  ivState.roundStartTime = performance.now();
+
+  document.getElementById('iv-beginBtn').disabled = true;
+  document.getElementById('iv-playBtn').disabled = false; // replayable during attempt
+  document.getElementById('iv-micBtn').disabled = true;
+  document.getElementById('iv-statusLabel').textContent = '🔴 Listening… sing both notes';
+
+  ivCaptureLoop();
+  ivTimerLoop();
+}
+
+function ivCaptureLoop() {
+  if (!ivState.roundActive) return;
+  const freq = detectPitch(ivState.analyser);
+  const tSec = (performance.now() - ivState.roundStartTime) / 1000;
+  if (freq) ivState.trace.push({ t: tSec, freq: freq });
+  ivState.rafId = requestAnimationFrame(ivCaptureLoop);
+}
+
+function ivTimerLoop() {
+  if (!ivState.roundActive) return;
+  const elapsed = (performance.now() - ivState.roundStartTime) / 1000;
+  const remain = Math.max(0, ivCfg.roundTime - elapsed);
+  document.getElementById('iv-timerPill').textContent = remain.toFixed(1) + 's';
+  if (remain <= 0) {
+    ivEndRoundCapture();
+  } else {
+    ivState.timerRaf = requestAnimationFrame(ivTimerLoop);
+  }
+}
+
+function ivEndRoundCapture() {
+  ivState.roundActive = false;
+  if (ivState.rafId) cancelAnimationFrame(ivState.rafId);
+  if (ivState.timerRaf) cancelAnimationFrame(ivState.timerRaf);
+
+  document.getElementById('iv-playBtn').disabled = false;
+  document.getElementById('iv-micBtn').disabled = false;
+  document.getElementById('iv-beginBtn').disabled = false;
+  document.getElementById('iv-statusLabel').textContent = 'Round finished';
+
+  ivFinalizeRound();
+}
+
+// Finds the closest-approach point in the trace to a target freq, independent
+// of order or timing — supports singing the two notes in either sequence.
+function ivClosestApproach(trace, targetFreq) {
+  let best = null;
+  trace.forEach(p => {
+    const cents = freqToCents(p.freq, targetFreq);
+    if (best === null || Math.abs(cents) < Math.abs(best.cents)) {
+      best = { t: p.t, cents: cents };
+    }
+  });
+  return best;
+}
+
+function ivFinalizeRound() {
+  const r = ivState.rounds[ivState.round];
+  const tol = ivCfg.tol;
+  const trace = ivState.trace;
+
+  const rootApproach  = trace.length ? ivClosestApproach(trace, r.rootFreq)  : null;
+  const otherApproach = trace.length ? ivClosestApproach(trace, r.otherFreq) : null;
+
+  const rootHit  = rootApproach  && Math.abs(rootApproach.cents)  <= tol;
+  const otherHit = otherApproach && Math.abs(otherApproach.cents) <= tol;
+  const bothHit  = rootHit && otherHit;
+
+  const result = {
+    rootMidi: r.rootMidi, otherMidi: r.otherMidi, intervalName: r.intervalName,
+    rootFreq: r.rootFreq, otherFreq: r.otherFreq,
+    trace: trace, tol: tol, roundTime: ivCfg.roundTime,
+    rootApproach, otherApproach, rootHit, otherHit, bothHit,
+    noSignal: trace.length === 0,
+  };
+  ivState.rounds[ivState.round].result = result;
+
+  const fb = document.getElementById('iv-roundFeedback');
+  const rootName = midiToName(r.rootMidi), otherName = midiToName(r.otherMidi);
+  document.getElementById('iv-noteDisplay').textContent = rootName + '  +  ' + otherName;
+  document.getElementById('iv-noteHz').textContent = r.intervalName + ' — ' + r.rootFreq.toFixed(1) + ' Hz & ' + r.otherFreq.toFixed(1) + ' Hz';
+
+  if (result.noSignal) {
+    fb.className = 'feedback bad';
+    fb.textContent = '⚠ No pitch detected — check your mic and try singing louder.';
+  } else if (bothHit) {
+    fb.className = 'feedback ok';
+    fb.textContent = `✓ Both notes matched — ${rootName} (${rootApproach.cents.toFixed(1)}¢) & ${otherName} (${otherApproach.cents.toFixed(1)}¢)`;
+  } else if (rootHit || otherHit) {
+    fb.className = 'feedback bad';
+    fb.textContent = `◐ One note matched — ${rootName}: ${rootApproach.cents.toFixed(1)}¢, ${otherName}: ${otherApproach.cents.toFixed(1)}¢`;
+  } else {
+    fb.className = 'feedback bad';
+    fb.textContent = `✗ Missed both — ${rootName}: ${rootApproach.cents.toFixed(1)}¢, ${otherName}: ${otherApproach.cents.toFixed(1)}¢`;
+  }
+  fb.style.display = 'block';
+
+  document.getElementById('iv-roundChartWrap').style.display = 'block';
+  document.getElementById('iv-roundResultBox').style.display = 'block';
+  ivRenderRoundChart(result);
+
+  if (ivState.round >= ivCfg.numRounds - 1) {
+    document.getElementById('iv-nextBtn').textContent = 'See results →';
+    document.getElementById('iv-nextBtn').onclick = ivShowResults;
+  } else {
+    document.getElementById('iv-nextBtn').textContent = 'Next round →';
+    document.getElementById('iv-nextBtn').onclick = ivNextRound;
+  }
+}
+
+function ivRenderRoundChart(result) {
+  const ctx = document.getElementById('iv-roundChart').getContext('2d');
+  if (ivState.roundChart) { ivState.roundChart.destroy(); ivState.roundChart = null; }
+
+  // Plot raw sung frequency converted to cents relative to the root, with
+  // reference lines for both targets.
+  const semitoneSpan = freqToCents(result.otherFreq, result.rootFreq);
+  const yMax = Math.max(semitoneSpan + 60, 100);
+
+  ivState.roundChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Your pitch',
+          data: result.trace.map(p => ({ x: p.t, y: freqToCents(p.freq, result.rootFreq) })),
+          borderColor: '#888780', backgroundColor: 'transparent',
+          pointRadius: 0, borderWidth: 2, tension: 0.25,
+        },
+        {
+          label: 'Root target',
+          data: [{x:0,y:0},{x:result.roundTime,y:0}],
+          borderColor: '#BA7517', borderDash: [5,4], borderWidth: 1.5,
+          pointRadius: 0, backgroundColor: 'transparent',
+        },
+        {
+          label: 'Interval target',
+          data: [{x:0,y:semitoneSpan},{x:result.roundTime,y:semitoneSpan}],
+          borderColor: '#3a7bd5', borderDash: [5,4], borderWidth: 1.5,
+          pointRadius: 0, backgroundColor: 'transparent',
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: c => c.parsed.y.toFixed(0) + '¢ at ' + c.parsed.x.toFixed(2) + 's' }
+      }},
+      scales: {
+        x: { type: 'linear', min: 0, max: result.roundTime,
+             ticks: { color: '#666', font: { size: 11 }, callback: v => v.toFixed(1)+'s' },
+             grid: { color: 'rgba(255,255,255,.06)' }},
+        y: { min: -60, max: yMax,
+             ticks: { color: '#666', font: { size: 11 }, callback: v => v + '¢' },
+             grid: { color: 'rgba(255,255,255,.06)' }}
+      }
+    }
+  });
+}
+
+function ivNextRound() {
+  ivState.round++;
+  ivLoadRound();
+}
+
+function ivShowResults() {
+  ivShow('iv-result');
+  const results = ivState.rounds.map(r => r.result).filter(Boolean);
+  const bothHits = results.filter(r => r.bothHit);
+  const bothRate = Math.round(bothHits.length / results.length * 100);
+
+  let noteHits = 0, noteTotal = 0, devSum = 0, devCount = 0;
+  results.forEach(r => {
+    if (r.rootApproach)  { noteTotal++; if (r.rootHit) noteHits++; devSum += Math.abs(r.rootApproach.cents); devCount++; }
+    if (r.otherApproach) { noteTotal++; if (r.otherHit) noteHits++; devSum += Math.abs(r.otherApproach.cents); devCount++; }
+  });
+  const noteRate = noteTotal ? Math.round(noteHits / noteTotal * 100) : 0;
+  const avgDev = devCount ? (devSum / devCount) : null;
+
+  document.getElementById('iv-resHitRate').textContent  = bothRate;
+  document.getElementById('iv-resNoteRate').textContent = noteRate;
+  document.getElementById('iv-resAvgDev').textContent   = avgDev !== null ? avgDev.toFixed(1) : '—';
+
+  let grade, note;
+  if (bothRate >= 80)      { grade = 'Excellent'; note = 'You\'re reliably singing both notes of the interval in tune. Try adding wider intervals or tightening tolerance.'; }
+  else if (bothRate >= 50) { grade = 'Good';      note = 'You\'re landing one or both notes most rounds. Check the per-round charts to see which interval sizes trip you up.'; }
+  else if (bothRate >= 20) { grade = 'Developing'; note = 'Interval singing is harder than single-note matching — give yourself more time per round or narrow the interval set while you build the skill.'; }
+  else                     { grade = 'Building';   note = 'Start with smaller intervals (2nds and 3rds) and a longer time window, then expand as you improve.'; }
+
+  document.getElementById('iv-resultSub').textContent = grade + ' — both notes matched in ' + bothRate + '% of rounds';
+  document.getElementById('iv-resultNote').textContent = note;
+
+  const container = document.getElementById('iv-resultRounds');
+  container.innerHTML = '';
+  if (ivState.charts) ivState.charts.forEach(c => c.destroy());
+  ivState.charts = [];
+
+  ivState.rounds.forEach((rd, i) => {
+    const r = rd.result;
+    if (!r) return;
+    const rootName = midiToName(r.rootMidi), otherName = midiToName(r.otherMidi);
+    const item = document.createElement('div');
+    item.className = 'history-item ' + (r.bothHit ? 'ok-item' : (r.rootHit || r.otherHit ? 'bad-item' : 'bad-item'));
+    item.style.flexDirection = 'column';
+    item.style.alignItems = 'stretch';
+    item.style.gap = '6px';
+
+    const headerRow = document.createElement('div');
+    headerRow.style.display = 'flex';
+    headerRow.style.justifyContent = 'space-between';
+    headerRow.style.alignItems = 'center';
+    headerRow.innerHTML = `
+      <span><span class="history-note">${rootName} + ${otherName}</span> <span class="history-detail">${r.intervalName} · Round ${i+1}</span></span>
+      <span class="history-detail">${r.bothHit ? '✓ Both' : (r.rootHit || r.otherHit ? '◐ One' : '✗ Neither')}</span>
+    `;
+    item.appendChild(headerRow);
+
+    const chartDiv = document.createElement('div');
+    chartDiv.style.height = '70px';
+    const canvas = document.createElement('canvas');
+    chartDiv.appendChild(canvas);
+    item.appendChild(chartDiv);
+    container.appendChild(item);
+
+    const semitoneSpan = freqToCents(r.otherFreq, r.rootFreq);
+    const yMax = Math.max(semitoneSpan + 60, 100);
+    const c = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        datasets: [
+          { data: r.trace.map(p => ({x:p.t, y: freqToCents(p.freq, r.rootFreq)})), borderColor: '#888780',
+            backgroundColor: 'transparent', pointRadius: 0, borderWidth: 1.5, tension: 0.25 },
+          { data: [{x:0,y:0},{x:r.roundTime,y:0}], borderColor: '#BA7517', borderDash:[4,3],
+            borderWidth: 1, pointRadius: 0, backgroundColor: 'transparent' },
+          { data: [{x:0,y:semitoneSpan},{x:r.roundTime,y:semitoneSpan}], borderColor: '#3a7bd5', borderDash:[4,3],
+            borderWidth: 1, pointRadius: 0, backgroundColor: 'transparent' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: {
+          x: { type: 'linear', min: 0, max: r.roundTime, display: false },
+          y: { min: -60, max: yMax, display: false }
+        }
+      }
+    });
+    ivState.charts.push(c);
+  });
+}
+
+function ivRestart() {
+  if (ivState.roundChart) { ivState.roundChart.destroy(); ivState.roundChart = null; }
+  if (ivState.charts) ivState.charts.forEach(c => c.destroy());
+  ivState.charts = [];
+  ivShow('iv-start');
+}
+
+ivBuildIntervalPicker();
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CHORD SINGING
+// ══════════════════════════════════════════════════════════════════════════════
+const CHORD_QUALITIES = {
+  major: { name: 'Major', intervals: [0, 4, 7] },
+  minor: { name: 'Minor', intervals: [0, 3, 7] },
+};
+const DEGREE_LABELS = ['I', 'III', 'V'];
+
+let chCfg = { timbre: 'piano', quality: 'both' };
+let chState = {
+  micStream: null, analyser: null, micActive: false,
+  rafId: null, timerRaf: null,
+  round: 0, rounds: [],
+  roundActive: false, roundStartTime: null, trace: [], hitTime: null,
+};
+
+function chSetTimbre(val) {
+  chCfg.timbre = val;
+  document.querySelectorAll('#ch-timbreSeg .seg-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.val === val));
+}
+function chSetQuality(val) {
+  chCfg.quality = val;
+  document.querySelectorAll('#ch-qualitySeg .seg-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.val === val));
+}
+
+[['ch-numRounds','ch-numRoundsVal', v => v],
+ ['ch-roundTime','ch-roundTimeVal', v => parseFloat(v).toFixed(1)+'s'],
+ ['ch-noteLen',  'ch-noteLenVal',   v => parseFloat(v).toFixed(1)+'s'],
+ ['ch-vol',      'ch-volVal',       v => v+'%'],
+ ['ch-tol',      'ch-tolVal',       v => v+'¢']].forEach(([id,out,fmt]) => {
+  document.getElementById(id).oninput = e =>
+    document.getElementById(out).textContent = fmt(e.target.value);
+});
+
+function chShow(id) {
+  document.querySelectorAll('#tab-chord .screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function chRandomRound() {
+  const qualities = chCfg.quality === 'both' ? ['major', 'minor'] : [chCfg.quality];
+  const qKey = qualities[Math.floor(Math.random() * qualities.length)];
+  const quality = CHORD_QUALITIES[qKey];
+
+  // Keep the whole triad (root + interval up to a 5th, i.e. +7 semitones) within range.
+  const rootMidi = 48 + Math.floor(Math.random() * (72 - 48 - 7 + 1));
+  const chordMidis = quality.intervals.map(iv => rootMidi + iv);
+  const chordFreqs = chordMidis.map(m => 440 * Math.pow(2, (m - 69) / 12));
+
+  const degreeIdx = Math.floor(Math.random() * 3); // 0=I, 1=III, 2=V
+  return {
+    qualityKey: qKey, qualityName: quality.name,
+    chordMidis, chordFreqs,
+    degreeIdx, degreeLabel: DEGREE_LABELS[degreeIdx],
+    targetMidi: chordMidis[degreeIdx], targetFreq: chordFreqs[degreeIdx],
+  };
+}
+
+function chStart() {
+  getAudio();
+  chCfg.numRounds = parseInt(document.getElementById('ch-numRounds').value);
+  chCfg.roundTime = parseFloat(document.getElementById('ch-roundTime').value);
+  chCfg.noteLen   = parseFloat(document.getElementById('ch-noteLen').value);
+  chCfg.vol       = parseFloat(document.getElementById('ch-vol').value) / 100;
+  chCfg.tol       = parseFloat(document.getElementById('ch-tol').value);
+
+  chState.round = 0;
+  chState.rounds = [];
+  for (let i = 0; i < chCfg.numRounds; i++) chState.rounds.push(chRandomRound());
+
+  chShow('ch-round');
+  chLoadRound();
+}
+
+function chLoadRound() {
+  const r = chState.rounds[chState.round];
+  chState.roundActive = false;
+  chState.trace = [];
+  chState.hitTime = null;
+
+  document.getElementById('ch-degreeDisplay').textContent = 'Sing the ' + r.degreeLabel;
+  document.getElementById('ch-noteHz').textContent = 'Chord hidden until after your attempt';
+  document.getElementById('ch-roundNum').textContent  = `Round ${chState.round + 1} / ${chCfg.numRounds}`;
+  document.getElementById('ch-timerPill').textContent  = chCfg.roundTime.toFixed(1) + 's';
+  document.getElementById('ch-progress').style.width   = (chState.round / chCfg.numRounds * 100).toFixed(1) + '%';
+  document.getElementById('ch-statusLabel').textContent = 'Press play, then sing the requested note';
+  document.getElementById('ch-beginBtn').disabled       = !chState.micActive;
+  document.getElementById('ch-roundChartWrap').style.display = 'none';
+  document.getElementById('ch-roundResultBox').style.display = 'none';
+
+  if (chState.roundChart) { chState.roundChart.destroy(); chState.roundChart = null; }
+}
+
+function chPlayTarget() {
+  getAudio();
+  const r = chState.rounds[chState.round];
+  const now = getAudio().currentTime;
+  r.chordFreqs.forEach(f => playTone(f, now + 0.05, chCfg.noteLen, chCfg.vol, chCfg.timbre));
+}
+
+async function chToggleMic() {
+  if (chState.micActive) chStopMic();
+  else await chStartMic();
+}
+
+async function chStartMic() {
+  try {
+    chState.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = getAudio();
+    const source = ctx.createMediaStreamSource(chState.micStream);
+    chState.analyser = ctx.createAnalyser();
+    chState.analyser.fftSize = 4096;
+    source.connect(chState.analyser);
+    chState.micActive = true;
+    document.getElementById('ch-micBtn').textContent = '🎤 Stop mic';
+    document.getElementById('ch-beginBtn').disabled = false;
+  } catch (e) {
+    alert('Mic access denied or unavailable.');
+  }
+}
+
+function chStopMic() {
+  if (chState.micStream) chState.micStream.getTracks().forEach(t => t.stop());
+  if (chState.rafId) cancelAnimationFrame(chState.rafId);
+  chState.micActive = false;
+  chState.analyser = null;
+  document.getElementById('ch-micBtn').textContent = '🎤 Start mic';
+  document.getElementById('ch-beginBtn').disabled = true;
+}
+
+function chBeginRound() {
+  if (!chState.micActive || chState.roundActive) return;
+  chState.roundActive = true;
+  chState.trace = [];
+  chState.hitTime = null;
+  chState.roundStartTime = performance.now();
+
+  document.getElementById('ch-beginBtn').disabled = true;
+  document.getElementById('ch-playBtn').disabled = false; // replayable
+  document.getElementById('ch-micBtn').disabled = true;
+  document.getElementById('ch-statusLabel').textContent = '🔴 Listening…';
+
+  chCaptureLoop();
+  chTimerLoop();
+}
+
+function chCaptureLoop() {
+  if (!chState.roundActive) return;
+  const freq = detectPitch(chState.analyser);
+  const tSec = (performance.now() - chState.roundStartTime) / 1000;
+  if (freq) {
+    const r = chState.rounds[chState.round];
+    const cents = freqToCents(freq, r.targetFreq);
+    chState.trace.push({ t: tSec, cents: cents });
+    if (chState.hitTime === null && Math.abs(cents) <= chCfg.tol) chState.hitTime = tSec;
+  }
+  chState.rafId = requestAnimationFrame(chCaptureLoop);
+}
+
+function chTimerLoop() {
+  if (!chState.roundActive) return;
+  const elapsed = (performance.now() - chState.roundStartTime) / 1000;
+  const remain = Math.max(0, chCfg.roundTime - elapsed);
+  document.getElementById('ch-timerPill').textContent = remain.toFixed(1) + 's';
+  if (remain <= 0) {
+    chEndRoundCapture();
+  } else {
+    chState.timerRaf = requestAnimationFrame(chTimerLoop);
+  }
+}
+
+function chEndRoundCapture() {
+  chState.roundActive = false;
+  if (chState.rafId) cancelAnimationFrame(chState.rafId);
+  if (chState.timerRaf) cancelAnimationFrame(chState.timerRaf);
+
+  document.getElementById('ch-playBtn').disabled = false;
+  document.getElementById('ch-micBtn').disabled = false;
+  document.getElementById('ch-beginBtn').disabled = false;
+  document.getElementById('ch-statusLabel').textContent = 'Round finished';
+
+  chFinalizeRound();
+}
+
+function chFinalizeRound() {
+  const r = chState.rounds[chState.round];
+  const trace = chState.trace;
+  const tol = chCfg.tol;
+
+  let maxDevAbs = 0, sumAbsLastThird = 0, countLastThird = 0;
+  trace.forEach(p => { if (Math.abs(p.cents) > maxDevAbs) maxDevAbs = Math.abs(p.cents); });
+  const lastThirdStart = chCfg.roundTime * (2/3);
+  trace.forEach(p => { if (p.t >= lastThirdStart) { sumAbsLastThird += Math.abs(p.cents); countLastThird++; } });
+  const finalDev = countLastThird > 0 ? sumAbsLastThird / countLastThird
+                    : (trace.length ? Math.abs(trace[trace.length - 1].cents) : null);
+
+  const hit = chState.hitTime !== null;
+  const result = {
+    qualityName: r.qualityName, degreeLabel: r.degreeLabel,
+    chordMidis: r.chordMidis, targetMidi: r.targetMidi,
+    trace, hit, hitTime: chState.hitTime, maxDevAbs, finalDev, tol,
+    roundTime: chCfg.roundTime, noSignal: trace.length === 0,
+  };
+  r.result = result;
+
+  const fb = document.getElementById('ch-roundFeedback');
+  const chordNoteNames = r.chordMidis.map(midiToName).join(' – ');
+  const targetName = midiToName(r.targetMidi);
+  document.getElementById('ch-degreeDisplay').textContent = targetName + ' (' + r.degreeLabel + ')';
+  document.getElementById('ch-noteHz').textContent = r.qualityName + ' chord: ' + chordNoteNames;
+
+  if (result.noSignal) {
+    fb.className = 'feedback bad';
+    fb.textContent = '⚠ No pitch detected — check your mic and try singing louder.';
+  } else if (hit) {
+    fb.className = 'feedback ok';
+    fb.textContent = `✓ Hit at ${result.hitTime.toFixed(2)}s — ended ${result.finalDev.toFixed(1)}¢ off`;
+  } else {
+    fb.className = 'feedback bad';
+    fb.textContent = `✗ Missed — closest was ${(Math.min(...trace.map(p => Math.abs(p.cents)))).toFixed(1)}¢ off`;
+  }
+  fb.style.display = 'block';
+
+  document.getElementById('ch-roundChartWrap').style.display = 'block';
+  document.getElementById('ch-roundResultBox').style.display = 'block';
+  chRenderRoundChart(result);
+
+  if (chState.round >= chCfg.numRounds - 1) {
+    document.getElementById('ch-nextBtn').textContent = 'See results →';
+    document.getElementById('ch-nextBtn').onclick = chShowResults;
+  } else {
+    document.getElementById('ch-nextBtn').textContent = 'Next round →';
+    document.getElementById('ch-nextBtn').onclick = chNextRound;
+  }
+}
+
+function chRenderRoundChart(result) {
+  const ctx = document.getElementById('ch-roundChart').getContext('2d');
+  if (chState.roundChart) { chState.roundChart.destroy(); chState.roundChart = null; }
+
+  const tol = result.tol;
+  const yRange = Math.max(tol * 2.2, result.maxDevAbs * 1.3, 15);
+
+  chState.roundChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        { data: result.trace.map(p => ({x:p.t, y:p.cents})), borderColor: '#888780',
+          backgroundColor: 'transparent', pointRadius: 0, borderWidth: 2, tension: 0.25 },
+        { data: [{x:0,y:0},{x:result.roundTime,y:0}], borderColor: '#BA7517', borderDash:[5,4],
+          borderWidth: 1.5, pointRadius: 0, backgroundColor: 'transparent' },
+        { data: [{x:0,y:tol},{x:result.roundTime,y:tol}], borderColor: 'rgba(29,158,117,0.4)',
+          borderWidth: 1, pointRadius: 0, backgroundColor: 'transparent', borderDash: [2,2] },
+        { data: [{x:0,y:-tol},{x:result.roundTime,y:-tol}], borderColor: 'rgba(29,158,117,0.4)',
+          borderWidth: 1, pointRadius: 0, backgroundColor: 'transparent', borderDash: [2,2] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: c => c.parsed.y.toFixed(1) + '¢ at ' + c.parsed.x.toFixed(2) + 's' }
+      }},
+      scales: {
+        x: { type: 'linear', min: 0, max: result.roundTime,
+             ticks: { color: '#666', font: { size: 11 }, callback: v => v.toFixed(1)+'s' },
+             grid: { color: 'rgba(255,255,255,.06)' }},
+        y: { min: -yRange, max: yRange,
+             ticks: { color: '#666', font: { size: 11 }, callback: v => v + '¢' },
+             grid: { color: 'rgba(255,255,255,.06)' }}
+      }
+    }
+  });
+}
+
+function chNextRound() {
+  chState.round++;
+  chLoadRound();
+}
+
+function chShowResults() {
+  chShow('ch-result');
+  const results = chState.rounds.map(r => r.result).filter(Boolean);
+  const hits = results.filter(r => r.hit);
+  const hitRate = Math.round(hits.length / results.length * 100);
+  const avgTime = hits.length ? (hits.reduce((a,r) => a + r.hitTime, 0) / hits.length) : null;
+  const validDev = results.filter(r => r.finalDev !== null);
+  const avgDev = validDev.length ? (validDev.reduce((a,r) => a + r.finalDev, 0) / validDev.length) : null;
+
+  document.getElementById('ch-resHitRate').textContent = hitRate;
+  document.getElementById('ch-resAvgTime').textContent = avgTime !== null ? avgTime.toFixed(2) : '—';
+  document.getElementById('ch-resAvgDev').textContent  = avgDev !== null ? avgDev.toFixed(1) : '—';
+
+  let grade, note;
+  if (hitRate >= 90)      { grade = 'Excellent'; note = 'You\'re reliably picking out chord tones by ear. Try restricting to one quality or tightening tolerance for a bigger challenge.'; }
+  else if (hitRate >= 65) { grade = 'Good';      note = 'Solid chord-tone recognition. Check whether misses cluster on a particular degree (I, III, or V) — that tells you what to drill.'; }
+  else if (hitRate >= 35) { grade = 'Developing'; note = 'Chord singing is genuinely harder than single-note matching since you have to extract one tone from three. Keep at it daily.'; }
+  else                    { grade = 'Building';   note = 'Try a longer time window or major-only chords to start, then add minor and tighten timing as you improve.'; }
+
+  document.getElementById('ch-resultSub').textContent = grade + ' — ' + hitRate + '% of notes matched';
+  document.getElementById('ch-resultNote').textContent = note;
+
+  const container = document.getElementById('ch-resultRounds');
+  container.innerHTML = '';
+  if (chState.charts) chState.charts.forEach(c => c.destroy());
+  chState.charts = [];
+
+  chState.rounds.forEach((rd, i) => {
+    const r = rd.result;
+    if (!r) return;
+    const chordNames = r.chordMidis.map(midiToName).join('–');
+    const targetName = midiToName(r.targetMidi);
+    const item = document.createElement('div');
+    item.className = 'history-item ' + (r.hit ? 'ok-item' : 'bad-item');
+    item.style.flexDirection = 'column';
+    item.style.alignItems = 'stretch';
+    item.style.gap = '6px';
+
+    const headerRow = document.createElement('div');
+    headerRow.style.display = 'flex';
+    headerRow.style.justifyContent = 'space-between';
+    headerRow.style.alignItems = 'center';
+    headerRow.innerHTML = `
+      <span><span class="history-note">${targetName}</span> <span class="history-detail">${r.degreeLabel} of ${chordNames} (${r.qualityName}) · Round ${i+1}</span></span>
+      <span class="history-detail">${r.hit ? '✓ Hit @ ' + r.hitTime.toFixed(2) + 's' : (r.noSignal ? '⚠ No signal' : '✗ Missed')} — final ${r.finalDev !== null ? r.finalDev.toFixed(1) : '—'}¢</span>
+    `;
+    item.appendChild(headerRow);
+
+    const chartDiv = document.createElement('div');
+    chartDiv.style.height = '70px';
+    const canvas = document.createElement('canvas');
+    chartDiv.appendChild(canvas);
+    item.appendChild(chartDiv);
+    container.appendChild(item);
+
+    const tol = r.tol;
+    const yRange = Math.max(tol * 2.2, r.maxDevAbs * 1.3, 15);
+    const c = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        datasets: [
+          { data: r.trace.map(p => ({x:p.t, y:p.cents})), borderColor: '#888780',
+            backgroundColor: 'transparent', pointRadius: 0, borderWidth: 1.5, tension: 0.25 },
+          { data: [{x:0,y:0},{x:r.roundTime,y:0}], borderColor: '#BA7517', borderDash:[4,3],
+            borderWidth: 1, pointRadius: 0, backgroundColor: 'transparent' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: {
+          x: { type: 'linear', min: 0, max: r.roundTime, display: false },
+          y: { min: -yRange, max: yRange, display: false }
+        }
+      }
+    });
+    chState.charts.push(c);
+  });
+}
+
+function chRestart() {
+  if (chState.roundChart) { chState.roundChart.destroy(); chState.roundChart = null; }
+  if (chState.charts) chState.charts.forEach(c => c.destroy());
+  chState.charts = [];
+  chShow('ch-start');
+}
 </script>
 </body>
 </html>
+
