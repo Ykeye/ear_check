@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ear Training</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,13 +24,25 @@
     --red-border: #8a2c10;
     --amber: #BA7517;
     --accent: #eee;
+
+    /* Mobile-first base sizes — scale up on desktop */
+    --fs-xs:   13px;
+    --fs-sm:   15px;
+    --fs-md:   17px;
+    --fs-lg:   20px;
+    --fs-xl:   26px;
+    --fs-note: 72px;
+    --pad-screen: 20px;
+    --btn-pad: 18px 20px;
+    --btn-fs:  17px;
   }
 
   body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
   }
 
   /* ── Tab nav ── */
@@ -39,191 +52,180 @@
     background: var(--surface);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    position: sticky; top: 0; z-index: 10;
   }
   .tab-btn {
     flex: 1 0 auto;
-    min-width: 140px;
-    padding: 14px 10px;
-    font-size: 14px;
+    min-width: 130px;
+    padding: 16px 10px;
+    font-size: var(--fs-sm);
     white-space: nowrap;
     background: none;
     border: none;
     color: var(--text2);
     cursor: pointer;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
     transition: color .15s, border-color .15s;
   }
-  .tab-btn.active {
-    color: var(--text);
-    border-bottom-color: var(--accent);
-  }
-  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab-btn:hover  { color: var(--text); }
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* ── Shared layout ── */
-  .screen { display: none; max-width: 520px; margin: 0 auto; padding: 28px 20px; }
+  /* ── Shared screen layout ── */
+  .screen { display: none; max-width: 560px; margin: 0 auto; padding: 28px var(--pad-screen); }
   .screen.active { display: block; }
 
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
-  .subtitle { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
+  h1 { font-size: var(--fs-xl); font-weight: 700; margin-bottom: 8px; }
+  .subtitle { font-size: var(--fs-sm); color: var(--text2); line-height: 1.65; margin-bottom: 28px; }
 
   /* ── Config rows ── */
-  .cfg { margin-bottom: 16px; }
-  .cfg-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .cfg-label { font-size: 13px; color: var(--text2); }
-  .cfg-val { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cfg { margin-bottom: 22px; }
+  .cfg-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .cfg-label { font-size: var(--fs-sm); color: var(--text2); }
+  .cfg-val   { font-size: var(--fs-sm); font-weight: 700; color: var(--text); }
   input[type=range] {
-    width: 100%; height: 4px; cursor: pointer;
+    width: 100%; height: 6px; cursor: pointer;
     accent-color: var(--accent);
+    touch-action: pan-y;
   }
 
-  /* ── Segmented control (timbre picker) ── */
+  /* ── Segmented control ── */
   .seg-control {
-    display: flex; gap: 6px; background: var(--surface2);
-    border: 1px solid var(--border); border-radius: 8px; padding: 4px;
+    display: flex; gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 10px; padding: 5px;
   }
   .seg-btn {
-    flex: 1; padding: 8px 6px; font-size: 13px; font-weight: 600;
-    background: none; border: none; border-radius: 6px;
-    color: var(--text2); cursor: pointer; transition: background .15s, color .15s;
+    flex: 1; padding: 11px 6px; font-size: var(--fs-sm); font-weight: 600;
+    background: none; border: none; border-radius: 8px;
+    color: var(--text2); cursor: pointer;
+    transition: background .15s, color .15s;
   }
-  .seg-btn:hover { color: var(--text); }
+  .seg-btn:hover  { color: var(--text); }
   .seg-btn.active { background: var(--surface); color: var(--text); }
 
-  /* ── Checkbox grid (interval picker) ── */
-  .checkbox-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-  }
+  /* ── Checkbox grid ── */
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .chk-pill {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 10px; font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 12px; font-size: var(--fs-sm);
     background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; cursor: pointer; color: var(--text2);
+    border-radius: 10px; cursor: pointer; color: var(--text2);
     transition: border-color .15s, color .15s;
     user-select: none;
   }
-  .chk-pill input { accent-color: var(--accent); cursor: pointer; }
+  .chk-pill input { accent-color: var(--accent); cursor: pointer; width: 18px; height: 18px; }
   .chk-pill.checked { color: var(--text); border-color: var(--border2); }
 
   /* ── Buttons ── */
   .btn {
-    display: inline-block; padding: 11px 24px; font-size: 15px; font-weight: 600;
-    border-radius: 8px; cursor: pointer; border: 1px solid var(--border2);
+    display: inline-block; padding: var(--btn-pad); font-size: var(--btn-fs); font-weight: 600;
+    border-radius: 10px; cursor: pointer; border: 1px solid var(--border2);
     background: var(--surface2); color: var(--text);
     transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .btn:hover { background: #2c2c2c; }
-  .btn:active { transform: scale(0.97); }
+  .btn:hover   { background: #2c2c2c; }
+  .btn:active  { transform: scale(0.97); }
   .btn:disabled { opacity: 0.35; pointer-events: none; }
 
-  .btn-primary {
-    background: var(--accent); color: #111; border-color: var(--accent);
-  }
+  .btn-primary { background: var(--accent); color: #111; border-color: var(--accent); }
   .btn-primary:hover { background: #ccc; }
 
   .btn-play {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 14px; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 20px; font-size: var(--fs-lg);
     background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: 10px; color: var(--text); cursor: pointer; margin-bottom: 16px;
-    transition: background .15s;
+    border-radius: 14px; color: var(--text); cursor: pointer; margin-bottom: 18px;
+    font-weight: 600; transition: background .15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .btn-play:hover { background: #2c2c2c; }
-  .btn-play:active { transform: scale(0.98); }
+  .btn-play:hover   { background: #2c2c2c; }
+  .btn-play:active  { transform: scale(0.98); }
   .btn-play:disabled { opacity: 0.35; pointer-events: none; }
 
-  /* ── Answer buttons ── */
-  .answer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  /* ── Answer buttons (ear training) ── */
+  .answer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 22px; }
   .btn-ans {
-    padding: 13px 6px; font-size: 14px; font-weight: 600;
+    padding: 20px 6px; font-size: var(--fs-md); font-weight: 600;
     background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: 10px; color: var(--text); cursor: pointer;
+    border-radius: 14px; color: var(--text); cursor: pointer;
     transition: background .15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .btn-ans:hover { background: #2c2c2c; }
-  .btn-ans:active { transform: scale(0.97); }
+  .btn-ans:hover   { background: #2c2c2c; }
+  .btn-ans:active  { transform: scale(0.97); }
   .btn-ans:disabled { opacity: 0.35; pointer-events: none; }
 
   /* ── Progress ── */
-  .progress-wrap { background: var(--surface2); border-radius: 99px; height: 5px; margin-bottom: 14px; overflow: hidden; }
-  .progress-bar { height: 100%; background: var(--text2); border-radius: 99px; transition: width .3s; }
+  .progress-wrap { background: var(--surface2); border-radius: 99px; height: 6px; margin-bottom: 18px; overflow: hidden; }
+  .progress-bar  { height: 100%; background: var(--text2); border-radius: 99px; transition: width .3s; }
 
-  .round-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .round-num { font-size: 13px; color: var(--text2); }
+  .round-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .round-num  { font-size: var(--fs-md); color: var(--text2); }
   .cents-pill {
-    font-size: 13px; font-weight: 600; padding: 3px 10px;
+    font-size: var(--fs-sm); font-weight: 700; padding: 5px 14px;
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: 99px; color: var(--text);
   }
 
   /* ── Feedback ── */
   .feedback {
-    padding: 11px 15px; border-radius: 8px; font-size: 14px; font-weight: 600;
-    margin-bottom: 14px; display: none;
+    padding: 16px 18px; border-radius: 10px; font-size: var(--fs-md); font-weight: 600;
+    margin-bottom: 18px; display: none; line-height: 1.4;
   }
   .feedback.ok  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
   .feedback.bad { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
 
   /* ── Chart ── */
-  .chart-wrap { position: relative; height: 140px; margin-bottom: 20px; }
+  .chart-wrap { position: relative; height: 150px; margin-bottom: 22px; }
 
   /* ── Result stats ── */
-  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-  .stat-card { background: var(--surface2); border-radius: 8px; padding: 12px; text-align: center; }
-  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
-  .stat-val { font-size: 22px; font-weight: 700; color: var(--text); }
-  .stat-unit { font-size: 11px; color: var(--text3); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
+  .stat-card  { background: var(--surface2); border-radius: 10px; padding: 16px 10px; text-align: center; }
+  .stat-label { font-size: var(--fs-xs); color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .stat-val   { font-size: 26px; font-weight: 700; color: var(--text); }
+  .stat-unit  { font-size: var(--fs-xs); color: var(--text3); margin-top: 2px; }
 
   .result-note {
-    font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px;
-    padding: 12px 14px; background: var(--surface2); border-radius: 8px;
+    font-size: var(--fs-sm); color: var(--text2); line-height: 1.65; margin-bottom: 24px;
+    padding: 16px 18px; background: var(--surface2); border-radius: 10px;
   }
 
-  /* ── Singing panel ── */
+  /* ── Note display (singing modes) ── */
   .note-display {
-    font-size: 64px; font-weight: 700; text-align: center;
-    padding: 30px 0 10px; letter-spacing: 2px;
+    font-size: var(--fs-note); font-weight: 700; text-align: center;
+    padding: 24px 0 8px; letter-spacing: 2px; line-height: 1;
   }
-  .note-hz { font-size: 15px; color: var(--text2); text-align: center; margin-bottom: 20px; }
+  .note-hz {
+    font-size: var(--fs-md); color: var(--text2); text-align: center; margin-bottom: 22px;
+  }
 
-  .pitch-meter-wrap {
-    position: relative; height: 28px; background: var(--surface2);
-    border-radius: 99px; overflow: hidden; margin-bottom: 8px;
+  .pitch-label {
+    font-size: var(--fs-sm); color: var(--text3); text-align: center; margin-bottom: 20px;
   }
-  .pitch-meter-fill {
-    position: absolute; top: 0; left: 0; height: 100%;
-    background: var(--green); border-radius: 99px;
-    transition: width .08s, background .08s;
-  }
-  .pitch-center-line {
-    position: absolute; left: 50%; top: 0; width: 2px; height: 100%;
-    background: var(--border2);
-  }
-  .pitch-label { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 18px; }
 
-  .sing-score-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
-
-  .history-list { margin-top: 16px; }
+  .history-list { margin-top: 18px; }
   .history-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 8px;
     background: var(--surface2);
-    border-left: 3px solid var(--border2);
-    font-size: 14px;
+    border-left: 4px solid var(--border2);
+    font-size: var(--fs-sm);
   }
   .history-item.ok-item  { border-left-color: var(--green); }
   .history-item.bad-item { border-left-color: var(--red); }
-  .history-note { font-weight: 700; font-size: 18px; }
-  .history-detail { font-size: 12px; color: var(--text2); }
+  .history-note   { font-weight: 700; font-size: var(--fs-xl); }
+  .history-detail { font-size: var(--fs-xs); color: var(--text2); text-align: right; }
 
-  .sing-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-  .sing-controls .btn { flex: 1; min-width: 120px; }
+  .sing-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .sing-controls .btn { text-align: center; }
+  .sing-controls .btn:last-child:nth-child(odd) { grid-column: 1 / -1; }
 
-  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-
-  .section-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .section-label { font-size: var(--fs-xs); color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
 
   /* ── Home screen ── */
   #home-screen {
@@ -235,56 +237,71 @@
   #home-screen.hidden { display: none; }
 
   .home-title {
-    font-size: 28px; font-weight: 700; color: var(--text);
-    margin-bottom: 6px; text-align: center;
+    font-size: 32px; font-weight: 700; color: var(--text);
+    margin-bottom: 8px; text-align: center;
   }
   .home-sub {
-    font-size: 14px; color: var(--text2); text-align: center;
-    margin-bottom: 40px; line-height: 1.6;
+    font-size: var(--fs-md); color: var(--text2); text-align: center;
+    margin-bottom: 44px; line-height: 1.6;
   }
 
   .mode-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    width: 100%; max-width: 480px;
+    gap: 16px;
+    width: 100%; max-width: 500px;
   }
 
   .mode-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px 18px;
+    border-radius: 18px;
+    padding: 28px 16px;
     cursor: pointer;
-    transition: border-color .15s, background .15s, transform .1s;
+    transition: border-color .15s, background .15s, transform .12s;
     text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    -webkit-tap-highlight-color: transparent;
   }
-  .mode-card:hover {
-    border-color: var(--border2);
-    background: var(--surface2);
-  }
-  .mode-card:active { transform: scale(0.97); }
+  .mode-card:hover  { border-color: var(--border2); background: var(--surface2); }
+  .mode-card:active { transform: scale(0.96); }
 
-  .mode-icon { font-size: 36px; line-height: 1; }
-  .mode-name { font-size: 15px; font-weight: 700; color: var(--text); }
-  .mode-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .mode-icon { font-size: 44px; line-height: 1; }
+  .mode-name { font-size: var(--fs-lg); font-weight: 700; color: var(--text); }
+  .mode-desc { font-size: var(--fs-sm); color: var(--text2); line-height: 1.5; }
 
-  /* ── App shell (hidden until mode chosen) ── */
+  /* ── App shell ── */
   #app-shell { display: none; }
   #app-shell.visible { display: block; }
 
   /* ── Tab nav home button ── */
   .tab-nav-home {
-    padding: 14px 16px;
-    font-size: 18px; line-height: 1;
+    padding: 16px 18px;
+    font-size: 22px; line-height: 1;
     background: none; border: none;
     color: var(--text2); cursor: pointer;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
     transition: color .15s;
     flex-shrink: 0;
   }
   .tab-nav-home:hover { color: var(--text); }
+
+  /* ── Desktop scaling ── */
+  @media (min-width: 600px) {
+    :root {
+      --fs-xs:   14px;
+      --fs-sm:   16px;
+      --fs-md:   18px;
+      --fs-lg:   22px;
+      --fs-xl:   28px;
+      --fs-note: 80px;
+      --pad-screen: 32px;
+      --btn-pad: 14px 28px;
+      --btn-fs:  16px;
+    }
+    .mode-grid { gap: 20px; }
+    .mode-card { padding: 32px 20px; }
+  }
 </style>
 </head>
 <body>
